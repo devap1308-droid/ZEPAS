@@ -8,17 +8,27 @@ print("CWD  " + os.getcwd())
 
 class Commands:
     @staticmethod
+    def _safe_path(target):
+        base_dir = Path.cwd().resolve()
+        resolved_target = (base_dir / target).resolve()
+        if not resolved_target.is_relative_to(base_dir):
+            raise PermissionError(
+                f"Access denied: '{target}' escapes the workspace."
+            )
+        return resolved_target
+
+    @staticmethod
     def mkdir(folder_name):
         """mkdir[command] -> make a single folder
         Syntax: mkdir <folder_name>"""
-        folder_path = Path(os.getcwd()).joinpath(folder_name)
+        folder_path = Commands._safe_path(folder_name)
         os.mkdir(folder_path)
 
     @staticmethod
     def mknestdir(folder_path):
         """mknestdir[command] -> make a nested folder
         Syntax: mknestdir <folder_path>"""
-        nested_path = Path(os.getcwd()).joinpath(folder_path)
+        nested_path = Commands._safe_path(folder_path)
         nested_path.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
@@ -33,22 +43,22 @@ class Commands:
         else:
             file_name = file_name
 
-        file_path = Path(os.getcwd()).joinpath(file_name)
+        file_path = Commands._safe_path(file_name)
         file_path.touch()
 
     @staticmethod
     def copy(src, dst):
         """copy[command] -> copy source to destination
         Syntax: copy <src> <dst>"""
-        source_path = Path(os.getcwd()).joinpath(src)
-        destination_path = Path(os.getcwd()).joinpath(dst)
+        source_path = Commands._safe_path(src)
+        destination_path = Commands._safe_path(dst)
         sh.copy2(source_path, destination_path)
 
     @staticmethod
     def rm(file_name):
         """rm[command] -> remove a file
         Syntax: rm <file_name>"""
-        file_path = Path(os.getcwd()).joinpath(file_name)
+        file_path = Commands._safe_path(file_name)
         os.remove(file_path)
 
     @staticmethod
@@ -63,21 +73,21 @@ class Commands:
         else:
             file_name = file_name
 
-        file_path = Path(os.getcwd()).joinpath(file_name)
+        file_path = Commands._safe_path(file_name)
         file_path.write_text(text)
 
     @staticmethod
     def rmdir(folder_name):
         """rmdir[command] -> remove a folder
         Syntax: rmdir <folder_name>"""
-        folder_path = Path(os.getcwd()).joinpath(folder_name)
+        folder_path = Commands._safe_path(folder_name)
         os.rmdir(folder_path)
 
     @staticmethod
     def rmnestdir(folder_name):
         """rmnestdir[command] -> remove a nested folder
         Syntax: rmnestdir <folder_name>"""
-        nested_path = Path(os.getcwd()).joinpath(folder_name)
+        nested_path = Commands._safe_path(folder_name)
         sh.rmtree(nested_path)
 
     @staticmethod
