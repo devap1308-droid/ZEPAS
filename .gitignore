@@ -25,6 +25,15 @@ dist/
 *.log
 *.sqlite3
 
+# Playwright Profiles & Session Data
+playwright_profile_*/
+playwright-report/
+test-results/
+
+# Rust & Node.js (for Thread X & UI later)
+target/
+node_modules/
+
 # OS Generated
 .DS_Store
 Thumbs.db

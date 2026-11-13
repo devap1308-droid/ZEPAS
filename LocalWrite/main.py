@@ -21,9 +21,7 @@ class Commands:
         base_dir = Path.cwd().resolve()
         resolved_target = (base_dir / target).resolve()
         if not resolved_target.is_relative_to(base_dir):
-            raise PermissionError(
-                f"Access denied: '{target}' escapes the workspace."
-            )
+            raise PermissionError(f"Access denied: '{target}' escapes the workspace.")
         if not allow_root and resolved_target == base_dir:
             raise PermissionError(
                 f"Access denied: cannot target workspace root ('{target}')."
@@ -32,7 +30,8 @@ class Commands:
             for part in resolved_target.relative_to(base_dir).parts:
                 if part.split(".")[0].upper() in Commands._RESERVED_WIN_NAMES:
                     raise PermissionError(
-                        f"Access denied: '{target}' uses a reserved Windows device name.")
+                        f"Access denied: '{target}' uses a reserved Windows device name."
+                    )
 
         return resolved_target
 
@@ -108,7 +107,7 @@ class Commands:
     @staticmethod
     def ls():
         r"""ls[command] -> list all directories and files, directories end with \ or / accordingly
-        Syntax: ls """
+        Syntax: ls"""
         print("\n".join(f if "." in f else f"{f}/" for f in sorted(os.listdir())))
 
     @staticmethod
@@ -134,7 +133,6 @@ class Commands:
                 print(target_attr.__doc__)
                 print("\n")
 
-
         else:
             for name in dir(Commands):
                 if name.startswith("_"):
@@ -153,8 +151,10 @@ while True:
         if not UserInput:
             continue
 
-        parts = [p[1:-1] if len(p) >= 2 and p[0] == p[-1] and p[0] in ('"', "'") else p
-                 for p in shlex.split(UserInput, posix=(os.name != "nt"))]
+        parts = [
+            p[1:-1] if len(p) >= 2 and p[0] == p[-1] and p[0] in ('"', "'") else p
+            for p in shlex.split(UserInput, posix=(os.name != "nt"))
+        ]
         user_command = parts[0].lower()
         args = parts[1:]
 
@@ -162,9 +162,8 @@ while True:
             break
 
         attr = getattr(Commands, user_command, None)
-        if attr is not None:
-            if callable(attr) and not user_command.startswith("_"):
-                attr(*args)
+        if attr is not None and callable(attr) and not user_command.startswith("_"):
+            attr(*args)
 
         if attr is None:
             print(f"Command '{user_command}' not found")
