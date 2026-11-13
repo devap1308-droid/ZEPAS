@@ -1,0 +1,30 @@
+# PyCharm / JetBrains
+.idea/
+*.iml
+
+# Virtual Environments
+venv/
+.venv/
+env/
+
+# Python Bytecode & Caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Packaging / Distribution
+build/
+dist/
+*.egg-info/
+
+# Environment & Local Data
+.env
+*.log
+*.sqlite3
+
+# OS Generated
+.DS_Store
+Thumbs.db
