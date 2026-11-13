@@ -7,14 +7,33 @@ print("CWD  " + os.getcwd())
 
 
 class Commands:
+    _RESERVED_WIN_NAMES = {
+        "CON",
+        "PRN",
+        "AUX",
+        "NUL",
+        *(f"COM{i}" for i in range(1, 10)),
+        *(f"LPT{i}" for i in range(1, 10)),
+    }
+
     @staticmethod
-    def _safe_path(target):
+    def _safe_path(target, allow_root=False):
         base_dir = Path.cwd().resolve()
         resolved_target = (base_dir / target).resolve()
         if not resolved_target.is_relative_to(base_dir):
             raise PermissionError(
                 f"Access denied: '{target}' escapes the workspace."
             )
+        if not allow_root and resolved_target == base_dir:
+            raise PermissionError(
+                f"Access denied: cannot target workspace root ('{target}')."
+            )
+        if os.name == "nt":
+            for part in resolved_target.relative_to(base_dir).parts:
+                if part.split(".")[0].upper() in Commands._RESERVED_WIN_NAMES:
+                    raise PermissionError(
+                        f"Access denied: '{target}' uses a reserved Windows device name.")
+
         return resolved_target
 
     @staticmethod
@@ -40,8 +59,6 @@ class Commands:
 
         if not Path(file_name).suffix:
             file_name = file_name + ".txt"
-        else:
-            file_name = file_name
 
         file_path = Commands._safe_path(file_name)
         file_path.touch()
@@ -70,8 +87,6 @@ class Commands:
 
         if not Path(file_name).suffix:
             file_name = file_name + ".txt"
-        else:
-            file_name = file_name
 
         file_path = Commands._safe_path(file_name)
         file_path.write_text(text)
@@ -138,7 +153,8 @@ while True:
         if not UserInput:
             continue
 
-        parts = shlex.split(UserInput)
+        parts = [p[1:-1] if len(p) >= 2 and p[0] == p[-1] and p[0] in ('"', "'") else p
+                 for p in shlex.split(UserInput, posix=(os.name != "nt"))]
         user_command = parts[0].lower()
         args = parts[1:]
 
