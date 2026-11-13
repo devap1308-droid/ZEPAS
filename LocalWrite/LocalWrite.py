@@ -1,73 +1,105 @@
 import os
-from pathlib import Path
-import shutil as sh
 import shlex
+import shutil as sh
+from pathlib import Path
 
 print("CWD  " + os.getcwd())
+
 
 class Commands:
     @staticmethod
     def mkdir(folder_name):
-        """mkdir[command] -> make a single folder"""
+        """mkdir[command] -> make a single folder
+        Syntax: mkdir <folder_name>"""
         folder_path = Path(os.getcwd()).joinpath(folder_name)
         os.mkdir(folder_path)
 
     @staticmethod
     def mknestdir(folder_path):
-        """mknestdir[command] -> make a nested folder"""
+        """mknestdir[command] -> make a nested folder
+        Syntax: mknestdir <folder_path>"""
         nested_path = Path(os.getcwd()).joinpath(folder_path)
         nested_path.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
     def touch(file_name):
-        """touch[command] -> create an empty file"""
+        """touch[command] -> create an empty file
+        Syntax: touch <file_name>"""
+
+        file_name = file_name.rstrip(".")
+
+        if not Path(file_name).suffix:
+            file_name = file_name + ".txt"
+        else:
+            file_name = file_name
+
         file_path = Path(os.getcwd()).joinpath(file_name)
         file_path.touch()
 
     @staticmethod
     def copy(src, dst):
-        """copy[command] -> copy source to destination"""
+        """copy[command] -> copy source to destination
+        Syntax: copy <src> <dst>"""
         source_path = Path(os.getcwd()).joinpath(src)
         destination_path = Path(os.getcwd()).joinpath(dst)
         sh.copy2(source_path, destination_path)
 
     @staticmethod
-    def rm (file_name):
-        """rm[command] -> remove a file"""
+    def rm(file_name):
+        """rm[command] -> remove a file
+        Syntax: rm <file_name>"""
         file_path = Path(os.getcwd()).joinpath(file_name)
         os.remove(file_path)
 
     @staticmethod
     def write(text, file_name):
-        """write[command] -> write a file"""
+        """write[command] -> write a file
+        Syntax: write <text> <file_name>"""
+
+        file_name = file_name.rstrip(".")
+
+        if not Path(file_name).suffix:
+            file_name = file_name + ".txt"
+        else:
+            file_name = file_name
+
         file_path = Path(os.getcwd()).joinpath(file_name)
         file_path.write_text(text)
 
     @staticmethod
     def rmdir(folder_name):
-        """rmdir[command] -> remove a folder"""
+        """rmdir[command] -> remove a folder
+        Syntax: rmdir <folder_name>"""
         folder_path = Path(os.getcwd()).joinpath(folder_name)
         os.rmdir(folder_path)
 
     @staticmethod
     def rmnestdir(folder_name):
-        """rmnestdir[command] -> remove a nested folder"""
+        """rmnestdir[command] -> remove a nested folder
+        Syntax: rmnestdir <folder_name>"""
         nested_path = Path(os.getcwd()).joinpath(folder_name)
         sh.rmtree(nested_path)
 
     @staticmethod
+    def ls():
+        r"""ls[command] -> list all directories and files, directories end with \ or / accordingly
+        Syntax: ls """
+        print("\n".join(f if "." in f else f"{f}/" for f in sorted(os.listdir())))
+
+    @staticmethod
     def clear():
-        """clear [command] -> clears the terminal screen"""
+        """clear [command] -> clears the terminal screen
+        Syntax: clear"""
 
         if os.name == "nt":
             os.system("cls")
         else:
             os.system("clear")
 
-
     @classmethod
     def help(cls, target=None):
-        """help [command] -> Lists all available documentation or a specific command's doc."""
+        """help [command] -> Lists all available documentation or a specific command's doc.
+        Syntax: help , OR , help <command>"""
 
         if target is not None:
             target_attr = getattr(cls, target, None)
@@ -92,15 +124,15 @@ class Commands:
 
 while True:
     try:
-        UserInput = input(f"{Path.cwd()}$> ").lower().strip()
+        UserInput = input(f"{Path.cwd()}$> ").strip()
         if not UserInput:
             continue
 
         parts = shlex.split(UserInput)
-        user_command = parts[0]
+        user_command = parts[0].lower()
         args = parts[1:]
 
-        if user_command in ("exit",  "quit"):
+        if user_command in ("exit", "quit"):
             break
 
         attr = getattr(Commands, user_command, None)
